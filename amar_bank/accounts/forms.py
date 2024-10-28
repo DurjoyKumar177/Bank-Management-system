@@ -46,3 +46,19 @@ class UserRegistrationForm(UserCreationForm):
                 account_no = 100000+ our_user.id #100000 er por userId plus hobe.
             )
             return our_user
+        
+    def __init__(self, *args, **kwargs): #init is a constractor 
+            super().__init__(*args, **kwargs) #super function call kortasi karon amra parent inherite kortasi tai 
+            
+            for field in self.fields:
+                self.fields[field].widget.attrs.update(
+                    {
+                        'class':(
+                            'appearance-none block w-full bg-gray-200 '
+                            'text-gray-700 border border-gray-200 rounded '
+                            'py-3 px-4 leading-tight focus:outline-none '
+                            'focus: bg-white focus: border-gray-500 '
+                        )
+                    }
+                )
+        
