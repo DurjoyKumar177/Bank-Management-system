@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banking System</title>
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body>
-    <h1>{{request.user}} </h1>
+
+{% extends 'base.html' %}
+
+{% block body %}
+
+   <h1>{{request.user}} </h1>
     {% if form.non_field_errors %} {% for error in form.non_field_errors %}
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2" role="alert">
         <p class="font-bold">Error!</p>
@@ -19,9 +15,9 @@
         <p class="block sm:inline">{{ error }}</p>
     </div>
     {% endfor %} {% endif %}
-    <div class="bg-white px-3 py-4 rounded-xl my-6">
-        <h1 class="font-bold text-3xl text-center pb-5">Sign In</h1>
-        <div class="w-full mt-10">
+    <div class="bg-white px-3 py-4 rounded-xl my-4">
+        <h1 class="font-bold text-3xl text-center pb-3">Sign In</h1>
+        <div class="w-full mt-5">
             <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                 {% csrf_token %} {% for hidden_field in form.hidden_fields %} {{ hidden_field.errors }} {{ hidden_field }} {% endfor %}
                 
@@ -138,5 +134,5 @@
             </form>
         </div>
     </div> 
-</body>
-</html>
+
+{% endblock %}
