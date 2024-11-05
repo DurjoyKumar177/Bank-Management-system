@@ -9,7 +9,7 @@ class TransactionForm(forms.ModelForm):
         
     def __init__(self,*args, **kwargs):
         self.account = kwargs.pop('account')
-        super.__inti__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['transaction_type'].disabled = True #ai field disable thakbe 
         self.fields['transaction_type'].widget = forms.HiddenInput() #user the hide kora thakbe
         
