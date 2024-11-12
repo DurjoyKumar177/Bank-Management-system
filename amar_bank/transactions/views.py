@@ -93,8 +93,7 @@ class LoanRequestView(TransactionCreateMixin):
         amount = form.cleaned_data.get('amount')
         
         current_loan_count = Transaction.objects.filter(
-            acount=self.request.user.account,transaction_type=LOAN,loan_approve=True
-        ).count()
+            account=self.request.user.account, transaction_type=LOAN,loan_approve=True).count()
         if current_loan_count >= 3:
             return HttpResponse(
                 "You can't request for loan more than 3 times"
@@ -107,43 +106,38 @@ class LoanRequestView(TransactionCreateMixin):
     
     
 class TransactionReportView(LoginRequiredMixin, ListView):
-    model = Transaction
     template_name = 'transactions/transaction_report.html'
+    model = Transaction
     balance = 0
-    
+
     def get_queryset(self):
         queryset = super().get_queryset().filter(
-            account = self.request.user.account
+            account=self.request.user.account
         )
-        
         start_date_str = self.request.GET.get('start_date')
         end_date_str = self.request.GET.get('end_date')
-        
+
         if start_date_str and end_date_str:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-            
-            queryset = queryset.filter(
-                timestamp__date__get=start_date,timestamp__date__lte=end_date
-            )
-            
+
+            queryset = queryset.filter(timestamp__date__gte=start_date, timestamp__date__lte=end_date)
             self.balance = Transaction.objects.filter(
-                timestamp__date__get=start_date,timestamp__date__lte=end_date
-            ).aggregate(
-                Sum('amount'))['amount__sum']
+                timestamp__date__gte=start_date, timestamp__date__lte=end_date
+            ).aggregate(Sum('amount'))['amount__sum']
         else:
             self.balance = self.request.user.account.balance
-            
+
         return queryset.distinct()
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'account' : self.request.user.account
+            'account': self.request.user.account,
+            'transactions': self.object_list  # Pass the transactions to the template context
         })
-        
+
         return context
-    
 class PayLoanView(LoginRequiredMixin, View):
     def get(self, request, loan_id):
         loan = get_object_or_404(Transaction, id=loan_id)

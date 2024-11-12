@@ -40,7 +40,7 @@ class UserRegistrationForm(UserCreationForm):
             
             UserBankAccount.objects.create(
                 user = our_user,
-                account_type = street_address,
+                account_type = account_type,
                 gender = gender,
                 birth_date = birth_date,
                 account_no = 100000+ our_user.id #100000 er por userId plus hobe.
