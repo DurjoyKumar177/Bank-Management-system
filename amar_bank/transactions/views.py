@@ -127,7 +127,8 @@ class TransactionReportView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(
             account=self.request.user.account
-        )
+        ).order_by('-timestamp')  # Show newest transactions first
+
         start_date_str = self.request.GET.get('start_date')
         end_date_str = self.request.GET.get('end_date')
 
@@ -166,7 +167,12 @@ class PayLoanView(LoginRequiredMixin, View):
                 loan.loan_approve = True
                 loan.transaction_type = LOAN_PAID
                 loan.save()
-                return redirect('transactons:loan_list')
+                messages.success(
+                    self.request,
+                    f'Loan amount for {"{:.2f}".format(float(loan.amount))} $ was paid successfully')
+                send_transaction_email(self.request.user, loan.amount, 'Loan paid Message','transactions/loan_pay.html')
+        
+                return redirect('loan_list')
             else:
                 messages.error(
                     self.request,
