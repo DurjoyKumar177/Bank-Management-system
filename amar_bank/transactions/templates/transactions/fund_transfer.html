@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Fund Transfer{% endblock %}
+
+{% block content %}
+<div class="w-full flex mt-5 justify-center">
+    <div class="bg-white w-5/12 rounded-lg">
+        
+        <h1 class="font-bold text-3xl text-center pb-5 pt-10 px-5">Fund Transfer</h1>
+        
+        <form method="post" class="px-8 pt-6 pb-8 mb-4">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="text-red-600 text-sm italic pb-2">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Amount Field -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="amount">
+                    Amount
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       name="amount" id="amount" type="number" required placeholder="Enter amount" value="{{ form.amount.value|default_if_none:'' }}">
+                {% if form.amount.errors %}
+                    {% for error in form.amount.errors %}
+                        <p class="text-red-600 text-sm italic pb-2">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Receiver's Account Number Field -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="receiver_account_number">
+                    Receiver's Account Number
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       name="receiver_account_no" id="receiver_account_no" type="text" required placeholder="Enter receiver's account number" value="{{ form.receiver_account_number.value|default_if_none:'' }}">
+                {% if form.receiver_account_number.errors %}
+                    {% for error in form.receiver_account_number.errors %}
+                        <p class="text-red-600 text-sm italic pb-2">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                    Password
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                       name="password" id="password" type="password" required placeholder="Enter your password">
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <p class="text-red-600 text-sm italic pb-2">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="flex w-full justify-center">
+                <button class="bg-blue-900 text-white hover:text-blue-900 hover:bg-white border border-blue-900 font-bold px-4 py-2 rounded-lg" type="submit">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

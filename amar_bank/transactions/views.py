@@ -2,23 +2,26 @@ from django.contrib import messages
 from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from transactions.constants import DEPOSIT, WITHDRAWAL, LOAN, LOAN_PAID
+from transactions.constants import DEPOSIT, WITHDRAWAL, LOAN, LOAN_PAID, TRANSFER
 from django.http import HttpResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404,redirect
 from django.views import View
 from datetime import datetime
 from django.db.models import Sum
-from transactions.forms import DepositForm, WinthdrawForm, LoanRequestForm
+from transactions.forms import DepositForm, WinthdrawForm, LoanRequestForm, FundTransferForm
 from transactions.models import Transaction
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-def send_transaction_email(user, amount, subject, template):
-    mail_subject = "Deposit Message"
+def send_transaction_email(user_account, amount, subject, template, receiver=None, sender=None):
+    
+    user = user_account.user
     message = render_to_string(template, {
         'user': user,
-        'amount': amount
+        'amount': amount,
+        'receiver': receiver,
+        'sender': sender
     })
     send_email = EmailMultiAlternatives(subject, '', to=[user.email])
     send_email.attach_alternative(message, "text/html")
@@ -67,7 +70,7 @@ class DepositMoneyView(TransactionCreateMixin):
         messages.success(
             self.request,
             f'{"{:.2f}".format(float(amount))} $ was deposited to your account successfully')
-        send_transaction_email(self.request.user, amount, 'Deposit Message','transactions/transaction_email.html')
+        send_transaction_email(self.request.user, amount, 'Deposit Message','transactions/deposit_email.html')
         return super().form_valid(form)
     
     
@@ -190,3 +193,44 @@ class LoanListView(LoginRequiredMixin, ListView):
         queryset = Transaction.objects.filter(account=user_account,transaction_type=3)
         print(queryset)
         return queryset
+    
+class TransferFundsView(LoginRequiredMixin, CreateView):
+    model = Transaction
+    form_class = FundTransferForm
+    template_name = 'transactions/fund_transfer.html'
+    
+    def get_initial(self):
+        initial = {'transaction_type': TRANSFER}
+        return initial
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['account'] = self.request.user.account  # Pass the sender's account to the form
+        return kwargs
+    
+    def form_valid(self, form):
+        sender_account = self.request.user.account
+        receiver_account = form.cleaned_data['receiver']
+        amount = form.cleaned_data['amount']
+        
+        # Update balances for sender and receiver
+        sender_account.balance -= amount
+        receiver_account.balance += amount
+        sender_account.save()
+        receiver_account.save()
+        
+        transaction = form.save(commit=False)
+        transaction.account = sender_account  
+        transaction.receiver = receiver_account
+        transaction.transaction_type = TRANSFER
+        transaction.balance_after_transaction = sender_account.balance
+        transaction.save() 
+        
+        messages.success(self.request, f'Successfully transferred ${amount} to {receiver_account.user.username} (Account No: {receiver_account.account_no}).')
+        send_transaction_email(sender_account, amount, 'Fund Transfer Message','transactions/fund_transfer_sender_email.html', receiver_account, sender_account)
+        send_transaction_email(receiver_account, amount, 'Fund Receive Message','transactions/fund_transfer_receiver_email.html',receiver_account, sender_account)
+
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('transaction_report') 

@@ -1,5 +1,6 @@
 from django import forms
 from .models import Transaction
+from accounts.models import UserBankAccount
 
 #we use the same form for multiple work
 class TransactionForm(forms.ModelForm):
@@ -59,3 +60,47 @@ class LoanRequestForm(TransactionForm):
         amount = self.cleaned_data.get('amount')
         
         return amount
+    
+class FundTransferForm(forms.ModelForm):
+    receiver_account_no = forms.CharField(max_length=12, label="Receiver's Account Number")  # Changed to match 'account_no'
+    password = forms.CharField(widget=forms.PasswordInput, label="Your Password")
+    
+    class Meta:
+        model = Transaction
+        fields = ['amount', 'receiver_account_no', 'password']
+        
+    def __init__(self, *args, **kwargs):
+        self.account = kwargs.pop('account', None)  # Get sender's account from kwargs
+        super().__init__(*args, **kwargs)
+        
+        # Set the sender's account on the instance for access in clean()
+        if self.account:
+            self.instance.account = self.account
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        amount = cleaned_data.get("amount")
+        receiver_account_no = cleaned_data.get("receiver_account_no")  # Updated to 'receiver_account_no'
+        password = cleaned_data.get("password")
+        sender = self.instance.account
+
+        # Validate the receiver account number
+        try:
+            receiver = UserBankAccount.objects.get(account_no=receiver_account_no)  # Updated to 'account_no'
+        except UserBankAccount.DoesNotExist:
+            raise forms.ValidationError("Invalid receiver account number.")
+
+        # Store the receiver for use in the view
+        self.cleaned_data['receiver'] = receiver
+
+        # Check sender's password
+        if not sender.user.check_password(password):
+            raise forms.ValidationError("Incorrect password.")
+
+        # Ensure sender has enough balance
+        if amount > sender.balance:
+            raise forms.ValidationError("Insufficient balance.")
+        
+        return cleaned_data
+
+
