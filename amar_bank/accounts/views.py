@@ -26,7 +26,7 @@ def send_transaction_email(user_account, subject, template):
 class UserRegistrationView(FormView):
     template_name = 'accounts/user_registration.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('register')
+    success_url = reverse_lazy('profile')
     
     def form_valid(self,form):
         # print(form.cleaned_data)
