@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -31,7 +32,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -85,15 +86,10 @@ WSGI_APPLICATION = 'amar_bank.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env("DB_NAME"),
-        'USER': env("DB_USER"),
-        'PASSWORD': env("DB_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT"),
+    'default': dj_database_url.config(
+        default='postgresql://amar_bank_4u6z_user:FmKS8hvAsCSLbeQ4mcf36uqaXohClwOm@dpg-css4b3jtq21c739rn73g-a.oregon-postgres.render.com/amar_bank_4u6z',
+           )
     }
-}
 
 
 # Password validation
