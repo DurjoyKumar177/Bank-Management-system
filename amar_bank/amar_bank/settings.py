@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECRET_KEY = 'django-insecure--00)$zig3&#oi%t%r088w%owg))m4kuf%5j#tgk_%f9*o$sq2&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ['https://bank-management-system-yqrb.onrender.com', 'http://127.0.0.1']

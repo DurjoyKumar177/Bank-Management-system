@@ -11,12 +11,16 @@ from datetime import datetime
 from django.db.models import Sum
 from transactions.forms import DepositForm, WinthdrawForm, LoanRequestForm, FundTransferForm
 from transactions.models import Transaction
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 def send_transaction_email(user_account, amount, subject, template, receiver=None, sender=None):
     
-    user = user_account.user
+     # Check if the object is a UserBankAccount and resolve the associated user
+    if hasattr(user_account, 'user'):
+        user = user_account.user  # Access the related User object
+    else:
+        user = user_account  # If already a User object
     message = render_to_string(template, {
         'user': user,
         'amount': amount,
