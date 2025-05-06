@@ -95,16 +95,15 @@ WSGI_APPLICATION = 'amar_bank.wsgi.application'
 #            )   
 #     }
 
-# for cpanel database
-import os
-import dj_database_url
-
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}",
-        conn_max_age=600,
-        ssl_require=False  # Usually cPanel-hosted PostgreSQL doesn't require SSL
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
+    }
 }
 
 # Password validation
