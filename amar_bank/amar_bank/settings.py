@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import dj_database_url
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -26,10 +25,6 @@ SECRET_KEY = env("SECRET_KEY")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure--00)$zig3&#oi%t%r088w%owg))m4kuf%5j#tgk_%f9*o$sq2&'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -86,15 +81,26 @@ WSGI_APPLICATION = 'amar_bank.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://amar_bank_4u6z_user:FmKS8hvAsCSLbeQ4mcf36uqaXohClwOm@dpg-css4b3jtq21c739rn73g-a.oregon-postgres.render.com/amar_bank_4u6z',
-        conn_max_age=600,  # Keep connection open for 10 minutes
-        ssl_require=True,
-           )
-    
-    }
+# for onrender postgre database
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='postgresql://amar_bank_4u6z_user:FmKS8hvAsCSLbeQ4mcf36uqaXohClwOm@dpg-css4b3jtq21c739rn73g-a.oregon-postgres.render.com/amar_bank_4u6z',
+#         conn_max_age=600,  # Keep connection open for 10 minutes
+#         ssl_require=True,
+#            )   
+#     }
 
+# postgreSQL from supbase
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -131,6 +137,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
