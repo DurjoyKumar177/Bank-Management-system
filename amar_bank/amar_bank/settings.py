@@ -86,15 +86,26 @@ WSGI_APPLICATION = 'amar_bank.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
+# for onrender postgre database
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         default='postgresql://amar_bank_4u6z_user:FmKS8hvAsCSLbeQ4mcf36uqaXohClwOm@dpg-css4b3jtq21c739rn73g-a.oregon-postgres.render.com/amar_bank_4u6z',
+#         conn_max_age=600,  # Keep connection open for 10 minutes
+#         ssl_require=True,
+#            )   
+#     }
+
+# for cpanel database
+import os
+import dj_database_url
+
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgresql://amar_bank_4u6z_user:FmKS8hvAsCSLbeQ4mcf36uqaXohClwOm@dpg-css4b3jtq21c739rn73g-a.oregon-postgres.render.com/amar_bank_4u6z',
-        conn_max_age=600,  # Keep connection open for 10 minutes
-        ssl_require=True,
-           )
-    
-    }
-
+        default=f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}",
+        conn_max_age=600,
+        ssl_require=False  # Usually cPanel-hosted PostgreSQL doesn't require SSL
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
